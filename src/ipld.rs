@@ -41,7 +41,7 @@ pub enum Ipld {
     /// Represents a boolean value.
     Bool(bool),
     /// Represents an integer.
-    Integer(i128),
+    Integer(i64),
     /// Represents a floating point value.
     Float(f64),
     /// Represents an UTF-8 string.

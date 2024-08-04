@@ -98,9 +98,9 @@ fn ipld_deserializer_u8() {
         "Correctly deserialize Ipld::Integer to u8."
     );
 
-    let too_large = u8::deserialize(Ipld::Integer((u8::MAX as i128) + 10));
+    let too_large = u8::deserialize(Ipld::Integer((u8::MAX as i64) + 10));
     assert!(too_large.is_err(), "Number must be within range.");
-    let too_small = u8::deserialize(Ipld::Integer((u8::MIN as i128) - 10));
+    let too_small = u8::deserialize(Ipld::Integer((u8::MIN as i64) - 10));
     assert!(too_small.is_err(), "Number must be within range.");
 }
 
@@ -116,9 +116,9 @@ fn ipld_deserializer_u16() {
         "Correctly deserialize Ipld::Integer to u16."
     );
 
-    let too_large = u16::deserialize(Ipld::Integer((u16::MAX as i128) + 10));
+    let too_large = u16::deserialize(Ipld::Integer((u16::MAX as i64) + 10));
     assert!(too_large.is_err(), "Number must be within range.");
-    let too_small = u16::deserialize(Ipld::Integer((u16::MIN as i128) - 10));
+    let too_small = u16::deserialize(Ipld::Integer((u16::MIN as i64) - 10));
     assert!(too_small.is_err(), "Number must be within range.");
 }
 
@@ -134,27 +134,9 @@ fn ipld_deserializer_u32() {
         "Correctly deserialize Ipld::Integer to u32."
     );
 
-    let too_large = u32::deserialize(Ipld::Integer((u32::MAX as i128) + 10));
+    let too_large = u32::deserialize(Ipld::Integer((u32::MAX as i64) + 10));
     assert!(too_large.is_err(), "Number must be within range.");
-    let too_small = u32::deserialize(Ipld::Integer((u32::MIN as i128) - 10));
-    assert!(too_small.is_err(), "Number must be within range.");
-}
-
-#[test]
-fn ipld_deserializer_u64() {
-    let integer = 34567890123u64;
-    let ipld = Ipld::Integer(integer.into());
-    error_except(integer, &ipld);
-
-    let deserialized = u64::deserialize(ipld).unwrap();
-    assert_eq!(
-        deserialized, integer,
-        "Correctly deserialize Ipld::Integer to u64."
-    );
-
-    let too_large = u64::deserialize(Ipld::Integer((u64::MAX as i128) + 10));
-    assert!(too_large.is_err(), "Number must be within range.");
-    let too_small = u64::deserialize(Ipld::Integer((u64::MIN as i128) - 10));
+    let too_small = u32::deserialize(Ipld::Integer((u32::MIN as i64) - 10));
     assert!(too_small.is_err(), "Number must be within range.");
 }
 
@@ -170,9 +152,9 @@ fn ipld_deserializer_i8() {
         "Correctly deserialize Ipld::Integer to i8."
     );
 
-    let too_large = i8::deserialize(Ipld::Integer((i8::MAX as i128) + 10));
+    let too_large = i8::deserialize(Ipld::Integer((i8::MAX as i64) + 10));
     assert!(too_large.is_err(), "Number must be within range.");
-    let too_small = i8::deserialize(Ipld::Integer((i8::MIN as i128) - 10));
+    let too_small = i8::deserialize(Ipld::Integer((i8::MIN as i64) - 10));
     assert!(too_small.is_err(), "Number must be within range.");
 }
 
@@ -188,9 +170,9 @@ fn ipld_deserializer_i16() {
         "Correctly deserialize Ipld::Integer to i16."
     );
 
-    let too_large = i16::deserialize(Ipld::Integer((i16::MAX as i128) + 10));
+    let too_large = i16::deserialize(Ipld::Integer((i16::MAX as i64) + 10));
     assert!(too_large.is_err(), "Number must be within range.");
-    let too_small = i16::deserialize(Ipld::Integer((i16::MIN as i128) - 10));
+    let too_small = i16::deserialize(Ipld::Integer((i16::MIN as i64) - 10));
     assert!(too_small.is_err(), "Number must be within range.");
 }
 
@@ -206,27 +188,9 @@ fn ipld_deserializer_i32() {
         "Correctly deserialize Ipld::Integer to i32."
     );
 
-    let too_large = i32::deserialize(Ipld::Integer((i32::MAX as i128) + 10));
+    let too_large = i32::deserialize(Ipld::Integer((i32::MAX as i64) + 10));
     assert!(too_large.is_err(), "Number must be within range.");
-    let too_small = i32::deserialize(Ipld::Integer((i32::MIN as i128) - 10));
-    assert!(too_small.is_err(), "Number must be within range.");
-}
-
-#[test]
-fn ipld_deserializer_i64() {
-    let integer = 2345678901i64;
-    let ipld = Ipld::Integer(integer.into());
-    error_except(integer, &ipld);
-
-    let deserialized = i64::deserialize(ipld).unwrap();
-    assert_eq!(
-        deserialized, integer,
-        "Correctly deserialize Ipld::Integer to i64."
-    );
-
-    let too_large = i64::deserialize(Ipld::Integer((i64::MAX as i128) + 10));
-    assert!(too_large.is_err(), "Number must be within range.");
-    let too_small = i64::deserialize(Ipld::Integer((i64::MIN as i128) - 10));
+    let too_small = i32::deserialize(Ipld::Integer((i32::MIN as i64) - 10));
     assert!(too_small.is_err(), "Number must be within range.");
 }
 
@@ -497,6 +461,35 @@ fn ipld_deserializer_cid_untagged() {
 
     let deserialized = MyOption::deserialize(ipld);
     assert!(deserialized.is_err());
+}
+
+#[test]
+fn ipld_deserializer_integer_untagged() {
+    #[derive(Clone, Debug, Deserialize, PartialEq)]
+    #[serde(untagged)]
+    enum MyEnum {
+        Foo { value: bool },
+        Bar { value: i32 },
+    }
+
+    // foo
+    {
+        let enum_foo = MyEnum::Foo { value: true };
+        let ipld = Ipld::Map(BTreeMap::from([("value".into(), Ipld::Bool(true))]));
+        error_except(enum_foo.clone(), &ipld);
+
+        let deserialized = MyEnum::deserialize(ipld).unwrap();
+        assert_eq!(deserialized, enum_foo);
+    }
+    // bar
+    {
+        let enum_bar = MyEnum::Bar { value: 42 };
+        let ipld = Ipld::Map(BTreeMap::from([("value".into(), Ipld::Integer(42))]));
+        error_except(enum_bar.clone(), &ipld);
+
+        let deserialized = MyEnum::deserialize(ipld).unwrap();
+        assert_eq!(deserialized, enum_bar);
+    }
 }
 
 #[test]

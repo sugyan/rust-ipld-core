@@ -87,7 +87,7 @@ impl ser::Serialize for Ipld {
         match &self {
             Self::Null => serializer.serialize_none(),
             Self::Bool(value) => serializer.serialize_bool(*value),
-            Self::Integer(value) => serializer.serialize_i128(*value),
+            Self::Integer(value) => serializer.serialize_i64(*value),
             Self::Float(value) => serializer.serialize_f64(*value),
             Self::String(value) => serializer.serialize_str(value),
             Self::Bytes(value) => serializer.serialize_bytes(value),
@@ -135,31 +135,43 @@ impl serde::Serializer for Serializer {
 
     #[inline]
     fn serialize_i64(self, value: i64) -> Result<Self::Ok, Self::Error> {
-        self.serialize_i128(i128::from(value))
+        Ok(Self::Ok::Integer(value))
     }
 
     fn serialize_i128(self, value: i128) -> Result<Self::Ok, Self::Error> {
-        Ok(Self::Ok::Integer(value))
+        value
+            .try_into()
+            .map(Self::Ok::Integer)
+            .map_err(|_| ser::Error::custom("i128 is too large to fit into an i64"))
     }
 
     #[inline]
     fn serialize_u8(self, value: u8) -> Result<Self::Ok, Self::Error> {
-        self.serialize_i128(value.into())
+        self.serialize_i64(value.into())
     }
 
     #[inline]
     fn serialize_u16(self, value: u16) -> Result<Self::Ok, Self::Error> {
-        self.serialize_i128(value.into())
+        self.serialize_i64(value.into())
     }
 
     #[inline]
     fn serialize_u32(self, value: u32) -> Result<Self::Ok, Self::Error> {
-        self.serialize_i128(value.into())
+        self.serialize_i64(value.into())
     }
 
-    #[inline]
     fn serialize_u64(self, value: u64) -> Result<Self::Ok, Self::Error> {
-        self.serialize_i128(value.into())
+        value
+            .try_into()
+            .map(Self::Ok::Integer)
+            .map_err(|_| ser::Error::custom("u64 is too large to fit into an i64"))
+    }
+
+    fn serialize_u128(self, value: u128) -> Result<Self::Ok, Self::Error> {
+        value
+            .try_into()
+            .map(Self::Ok::Integer)
+            .map_err(|_| ser::Error::custom("u128 is too large to fit into an i64"))
     }
 
     #[inline]

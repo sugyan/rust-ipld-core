@@ -98,19 +98,15 @@ impl<'de> de::Deserialize<'de> for Ipld {
             where
                 E: de::Error,
             {
-                Ok(Ipld::Integer(v.into()))
+                v.try_into().map(Ipld::Integer).map_err(|_| {
+                    de::Error::custom(format!(
+                        "Cannot convert `u64` value `{v}` to `Ipld::Integer`",
+                    ))
+                })
             }
 
             #[inline]
             fn visit_i64<E>(self, v: i64) -> Result<Self::Value, E>
-            where
-                E: de::Error,
-            {
-                Ok(Ipld::Integer(v.into()))
-            }
-
-            #[inline]
-            fn visit_i128<E>(self, v: i128) -> Result<Self::Value, E>
             where
                 E: de::Error,
             {
@@ -266,7 +262,7 @@ impl<'de> de::Deserializer<'de> for Ipld {
         match self {
             Self::Null => visitor.visit_none(),
             Self::Bool(bool) => visitor.visit_bool(bool),
-            Self::Integer(i128) => visitor.visit_i128(i128),
+            Self::Integer(i64) => visitor.visit_i64(i64),
             Self::Float(f64) => visitor.visit_f64(f64),
             Self::String(string) => visitor.visit_str(&string),
             Self::Bytes(bytes) => visitor.visit_bytes(&bytes),

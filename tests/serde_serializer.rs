@@ -70,7 +70,14 @@ fn ipld_serializer_u32() {
 #[test]
 fn ipld_serializer_u64() {
     let integer = 34567890123u64;
-    let ipld = Ipld::Integer(integer.into());
+    let ipld = Ipld::Integer(integer.try_into().unwrap());
+    assert_serialized(integer, ipld);
+}
+
+#[test]
+fn ipld_serializer_u128() {
+    let integer = 3456789012345678u128;
+    let ipld = Ipld::Integer(integer.try_into().unwrap());
     assert_serialized(integer, ipld);
 }
 
@@ -83,29 +90,29 @@ fn ipld_serializer_i8() {
 
 #[test]
 fn ipld_serializer_i16() {
-    let integer = 2345i16;
+    let integer = -2345i16;
     let ipld = Ipld::Integer(integer.into());
     assert_serialized(integer, ipld);
 }
 
 #[test]
 fn ipld_serializer_i32() {
-    let integer = 234567i32;
+    let integer = -234567i32;
     let ipld = Ipld::Integer(integer.into());
     assert_serialized(integer, ipld);
 }
 
 #[test]
 fn ipld_serializer_i64() {
-    let integer = 2345678901i64;
+    let integer = -2345678901i64;
     let ipld = Ipld::Integer(integer.into());
     assert_serialized(integer, ipld);
 }
 
 #[test]
 fn ipld_serializer_i128() {
-    let integer = 34567890123467890123i128;
-    let ipld = Ipld::Integer(integer);
+    let integer = -23456789012346789i128;
+    let ipld = Ipld::Integer(integer.try_into().unwrap());
     assert_serialized(integer, ipld);
 }
 
