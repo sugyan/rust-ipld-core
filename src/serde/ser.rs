@@ -87,7 +87,15 @@ impl ser::Serialize for Ipld {
         match &self {
             Self::Null => serializer.serialize_none(),
             Self::Bool(value) => serializer.serialize_bool(*value),
-            Self::Integer(value) => serializer.serialize_i128(*value),
+            Self::Integer(value) => {
+                if let Ok(value) = value.try_into() {
+                    serializer.serialize_i64(value)
+                } else {
+                    Err(ser::Error::custom(format!(
+                        "Integer value {value} is too large"
+                    )))
+                }
+            }
             Self::Float(value) => serializer.serialize_f64(*value),
             Self::String(value) => serializer.serialize_str(value),
             Self::Bytes(value) => serializer.serialize_bytes(value),
@@ -139,7 +147,7 @@ impl serde::Serializer for Serializer {
     }
 
     fn serialize_i128(self, value: i128) -> Result<Self::Ok, Self::Error> {
-        Ok(Self::Ok::Integer(value))
+        Ok(Self::Ok::Integer(value.into()))
     }
 
     #[inline]

@@ -4,6 +4,7 @@ extern crate alloc;
 
 use alloc::collections::BTreeMap;
 use core::convert::TryFrom;
+use num_bigint::BigInt;
 
 use serde::Deserialize;
 use serde_bytes::ByteBuf;
@@ -25,7 +26,7 @@ where
         assert!(T::deserialize(Ipld::Bool(true)).is_err());
     }
     if !matches!(except, Ipld::Integer(_)) {
-        assert!(T::deserialize(Ipld::Integer(22)).is_err());
+        assert!(T::deserialize(Ipld::Integer(22.into())).is_err());
     }
     if !matches!(except, Ipld::Float(_)) {
         assert!(T::deserialize(Ipld::Float(5.3)).is_err());
@@ -37,7 +38,11 @@ where
         assert!(T::deserialize(Ipld::Bytes(vec![0x68, 0x65, 0x6c, 0x6c, 0x6f])).is_err());
     }
     if !matches!(except, Ipld::List(_)) {
-        assert!(T::deserialize(Ipld::List(vec![Ipld::Integer(22), Ipld::Bool(false)])).is_err());
+        assert!(T::deserialize(Ipld::List(vec![
+            Ipld::Integer(22.into()),
+            Ipld::Bool(false)
+        ]))
+        .is_err());
     }
     if !matches!(except, Ipld::Map(_)) {
         assert!(T::deserialize(Ipld::Map(BTreeMap::from([
@@ -98,9 +103,9 @@ fn ipld_deserializer_u8() {
         "Correctly deserialize Ipld::Integer to u8."
     );
 
-    let too_large = u8::deserialize(Ipld::Integer((u8::MAX as i128) + 10));
+    let too_large = u8::deserialize(Ipld::Integer(BigInt::from(u8::MAX) + 10));
     assert!(too_large.is_err(), "Number must be within range.");
-    let too_small = u8::deserialize(Ipld::Integer((u8::MIN as i128) - 10));
+    let too_small = u8::deserialize(Ipld::Integer(BigInt::from(u8::MIN) - 10));
     assert!(too_small.is_err(), "Number must be within range.");
 }
 
@@ -116,9 +121,9 @@ fn ipld_deserializer_u16() {
         "Correctly deserialize Ipld::Integer to u16."
     );
 
-    let too_large = u16::deserialize(Ipld::Integer((u16::MAX as i128) + 10));
+    let too_large = u16::deserialize(Ipld::Integer(BigInt::from(u16::MAX) + 10));
     assert!(too_large.is_err(), "Number must be within range.");
-    let too_small = u16::deserialize(Ipld::Integer((u16::MIN as i128) - 10));
+    let too_small = u16::deserialize(Ipld::Integer(BigInt::from(u16::MIN) - 10));
     assert!(too_small.is_err(), "Number must be within range.");
 }
 
@@ -134,9 +139,9 @@ fn ipld_deserializer_u32() {
         "Correctly deserialize Ipld::Integer to u32."
     );
 
-    let too_large = u32::deserialize(Ipld::Integer((u32::MAX as i128) + 10));
+    let too_large = u32::deserialize(Ipld::Integer(BigInt::from(u32::MAX) + 10));
     assert!(too_large.is_err(), "Number must be within range.");
-    let too_small = u32::deserialize(Ipld::Integer((u32::MIN as i128) - 10));
+    let too_small = u32::deserialize(Ipld::Integer(BigInt::from(u32::MIN) - 10));
     assert!(too_small.is_err(), "Number must be within range.");
 }
 
@@ -152,9 +157,9 @@ fn ipld_deserializer_u64() {
         "Correctly deserialize Ipld::Integer to u64."
     );
 
-    let too_large = u64::deserialize(Ipld::Integer((u64::MAX as i128) + 10));
+    let too_large = u64::deserialize(Ipld::Integer(BigInt::from(u64::MAX) + 10));
     assert!(too_large.is_err(), "Number must be within range.");
-    let too_small = u64::deserialize(Ipld::Integer((u64::MIN as i128) - 10));
+    let too_small = u64::deserialize(Ipld::Integer(BigInt::from(u64::MIN) - 10));
     assert!(too_small.is_err(), "Number must be within range.");
 }
 
@@ -170,9 +175,9 @@ fn ipld_deserializer_i8() {
         "Correctly deserialize Ipld::Integer to i8."
     );
 
-    let too_large = i8::deserialize(Ipld::Integer((i8::MAX as i128) + 10));
+    let too_large = i8::deserialize(Ipld::Integer(BigInt::from(i8::MAX) + 10));
     assert!(too_large.is_err(), "Number must be within range.");
-    let too_small = i8::deserialize(Ipld::Integer((i8::MIN as i128) - 10));
+    let too_small = i8::deserialize(Ipld::Integer(BigInt::from(i8::MIN) - 10));
     assert!(too_small.is_err(), "Number must be within range.");
 }
 
@@ -188,9 +193,9 @@ fn ipld_deserializer_i16() {
         "Correctly deserialize Ipld::Integer to i16."
     );
 
-    let too_large = i16::deserialize(Ipld::Integer((i16::MAX as i128) + 10));
+    let too_large = i16::deserialize(Ipld::Integer(BigInt::from(i16::MAX) + 10));
     assert!(too_large.is_err(), "Number must be within range.");
-    let too_small = i16::deserialize(Ipld::Integer((i16::MIN as i128) - 10));
+    let too_small = i16::deserialize(Ipld::Integer(BigInt::from(i16::MIN) - 10));
     assert!(too_small.is_err(), "Number must be within range.");
 }
 
@@ -206,9 +211,9 @@ fn ipld_deserializer_i32() {
         "Correctly deserialize Ipld::Integer to i32."
     );
 
-    let too_large = i32::deserialize(Ipld::Integer((i32::MAX as i128) + 10));
+    let too_large = i32::deserialize(Ipld::Integer(BigInt::from(i32::MAX) + 10));
     assert!(too_large.is_err(), "Number must be within range.");
-    let too_small = i32::deserialize(Ipld::Integer((i32::MIN as i128) - 10));
+    let too_small = i32::deserialize(Ipld::Integer(BigInt::from(i32::MIN) - 10));
     assert!(too_small.is_err(), "Number must be within range.");
 }
 
@@ -224,9 +229,9 @@ fn ipld_deserializer_i64() {
         "Correctly deserialize Ipld::Integer to i64."
     );
 
-    let too_large = i64::deserialize(Ipld::Integer((i64::MAX as i128) + 10));
+    let too_large = i64::deserialize(Ipld::Integer(BigInt::from(i64::MAX) + 10));
     assert!(too_large.is_err(), "Number must be within range.");
-    let too_small = i64::deserialize(Ipld::Integer((i64::MIN as i128) - 10));
+    let too_small = i64::deserialize(Ipld::Integer(BigInt::from(i64::MIN) - 10));
     assert!(too_small.is_err(), "Number must be within range.");
 }
 
@@ -343,11 +348,11 @@ fn ipld_deserializer_byte_buf() {
 fn ipld_deserializer_list() {
     let list = vec![0x68, 0x65, 0x6c, 0x6c, 0x6f];
     let ipld = Ipld::List(vec![
-        Ipld::Integer(0x68),
-        Ipld::Integer(0x65),
-        Ipld::Integer(0x6c),
-        Ipld::Integer(0x6c),
-        Ipld::Integer(0x6f),
+        Ipld::Integer(0x68.into()),
+        Ipld::Integer(0x65.into()),
+        Ipld::Integer(0x6c.into()),
+        Ipld::Integer(0x6c.into()),
+        Ipld::Integer(0x6f.into()),
     ]);
     error_except(list.clone(), &ipld);
 
@@ -395,7 +400,7 @@ fn ipld_deserializer_tuple_struct() {
     struct TupleStruct(u8, bool);
 
     let tuple_struct = TupleStruct(82, true);
-    let ipld = Ipld::List(vec![Ipld::Integer(82), Ipld::Bool(true)]);
+    let ipld = Ipld::List(vec![Ipld::Integer(82.into()), Ipld::Bool(true)]);
     error_except(tuple_struct.clone(), &ipld);
 
     let deserialized = TupleStruct::deserialize(ipld).unwrap();
@@ -500,12 +505,41 @@ fn ipld_deserializer_cid_untagged() {
 }
 
 #[test]
+fn ipld_deserializer_integer_untagged() {
+    #[derive(Clone, Debug, Deserialize, PartialEq)]
+    #[serde(untagged)]
+    enum MyEnum {
+        Foo { value: bool },
+        Bar { value: i32 },
+    }
+
+    // foo
+    {
+        let enum_foo = MyEnum::Foo { value: true };
+        let ipld = Ipld::Map(BTreeMap::from([("value".into(), Ipld::Bool(true))]));
+        error_except(enum_foo.clone(), &ipld);
+
+        let deserialized = MyEnum::deserialize(ipld).unwrap();
+        assert_eq!(deserialized, enum_foo);
+    }
+    // bar
+    {
+        let enum_bar = MyEnum::Bar { value: 42 };
+        let ipld = Ipld::Map(BTreeMap::from([("value".into(), Ipld::Integer(42.into()))]));
+        error_except(enum_bar.clone(), &ipld);
+
+        let deserialized = MyEnum::deserialize(ipld).unwrap();
+        assert_eq!(deserialized, enum_bar);
+    }
+}
+
+#[test]
 fn ipld_deserializer_newtype_struct() {
     #[derive(Clone, Debug, Deserialize, PartialEq)]
     struct Wrapped(u8);
 
     let newtype_struct = Wrapped(5);
-    let ipld = Ipld::Integer(5);
+    let ipld = Ipld::Integer(5.into());
     error_except(newtype_struct.clone(), &ipld);
 
     let deserialized = Wrapped::deserialize(ipld).unwrap();
@@ -531,7 +565,7 @@ fn ipld_deserializer_newtype_struct_cid() {
 fn ipld_deserializer_option() {
     let option_some: Option<u8> = Some(58u8);
     let option_none: Option<u8> = None;
-    let ipld_some = Ipld::Integer(58);
+    let ipld_some = Ipld::Integer(58.into());
     let ipld_none = Ipld::Null;
 
     // This is similar to `error_except`, which cannot be used here, as we need to exclude
@@ -540,9 +574,11 @@ fn ipld_deserializer_option() {
     assert!(<Option<u8>>::deserialize(Ipld::Float(5.3)).is_err());
     assert!(<Option<u8>>::deserialize(Ipld::String("hello".into())).is_err());
     assert!(<Option<u8>>::deserialize(Ipld::Bytes(vec![0x01, 0x97])).is_err());
-    assert!(
-        <Option<u8>>::deserialize(Ipld::List(vec![Ipld::Integer(22), Ipld::Bool(false)])).is_err()
-    );
+    assert!(<Option<u8>>::deserialize(Ipld::List(vec![
+        Ipld::Integer(22.into()),
+        Ipld::Bool(false)
+    ]))
+    .is_err());
     assert!(<Option<u8>>::deserialize(Ipld::Map(BTreeMap::from([
         ("hello".into(), Ipld::Null),
         ("world!".into(), Ipld::Float(7.4))
@@ -575,7 +611,7 @@ fn ipld_deserializer_enum() {
     assert_eq!(deserialized_one, enum_one);
 
     let enum_two = MyEnum::Two(4);
-    let ipld_two = Ipld::Map(BTreeMap::from([("Two".into(), Ipld::Integer(4))]));
+    let ipld_two = Ipld::Map(BTreeMap::from([("Two".into(), Ipld::Integer(4.into()))]));
     error_except(enum_two.clone(), &ipld_two);
     let deserialized_two = MyEnum::deserialize(ipld_two).unwrap();
     assert_eq!(deserialized_two, enum_two);
@@ -601,7 +637,7 @@ fn ipld_deserializer_enum_tuple_variant_errors() {
 
     let ipld_not_enough = Ipld::Map(BTreeMap::from([(
         "Two".into(),
-        Ipld::List(vec![Ipld::Integer(17)]),
+        Ipld::List(vec![Ipld::Integer(17.into())]),
     )]));
     error_except(tuple_variant.clone(), &ipld_not_enough);
     let error_not_enough = MyEnum::deserialize(ipld_not_enough);
@@ -609,7 +645,11 @@ fn ipld_deserializer_enum_tuple_variant_errors() {
 
     let ipld_too_many = Ipld::Map(BTreeMap::from([(
         "Two".into(),
-        Ipld::List(vec![Ipld::Integer(17), Ipld::Bool(false), Ipld::Null]),
+        Ipld::List(vec![
+            Ipld::Integer(17.into()),
+            Ipld::Bool(false),
+            Ipld::Null,
+        ]),
     )]));
     error_except(tuple_variant.clone(), &ipld_too_many);
     let error_too_many = MyEnum::deserialize(ipld_too_many);
@@ -617,7 +657,7 @@ fn ipld_deserializer_enum_tuple_variant_errors() {
 
     let ipld_not_matching = Ipld::Map(BTreeMap::from([(
         "Two".into(),
-        Ipld::List(vec![Ipld::Bool(false), Ipld::Integer(17)]),
+        Ipld::List(vec![Ipld::Bool(false), Ipld::Integer(17.into())]),
     )]));
     error_except(tuple_variant, &ipld_not_matching);
     let error_not_matching = MyEnum::deserialize(ipld_not_matching);

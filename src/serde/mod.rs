@@ -130,7 +130,7 @@ mod tests {
         let expected_ipld = Ipld::Map({
             BTreeMap::from([
                 ("name".into(), Ipld::String("Hello World!".into())),
-                ("age".into(), Ipld::Integer(52)),
+                ("age".into(), Ipld::Integer(52.into())),
                 (
                     "hobbies".into(),
                     Ipld::List(vec![

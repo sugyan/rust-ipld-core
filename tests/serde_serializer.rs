@@ -105,7 +105,7 @@ fn ipld_serializer_i64() {
 #[test]
 fn ipld_serializer_i128() {
     let integer = 34567890123467890123i128;
-    let ipld = Ipld::Integer(integer);
+    let ipld = Ipld::Integer(integer.into());
     assert_serialized(integer, ipld);
 }
 
@@ -148,11 +148,11 @@ fn ipld_serializer_bytes() {
 fn ipld_serializer_list() {
     let list = vec![0x68, 0x65, 0x6c, 0x6c, 0x6f];
     let ipld = Ipld::List(vec![
-        Ipld::Integer(0x68),
-        Ipld::Integer(0x65),
-        Ipld::Integer(0x6c),
-        Ipld::Integer(0x6c),
-        Ipld::Integer(0x6f),
+        Ipld::Integer(0x68.into()),
+        Ipld::Integer(0x65.into()),
+        Ipld::Integer(0x6c.into()),
+        Ipld::Integer(0x6c.into()),
+        Ipld::Integer(0x6f.into()),
     ]);
     assert_serialized(list, ipld);
 }
@@ -170,7 +170,7 @@ fn ipld_serializer_tuple_struct() {
     struct TupleStruct(u8, bool);
 
     let tuple_struct = TupleStruct(82, true);
-    let ipld = Ipld::List(vec![Ipld::Integer(82), Ipld::Bool(true)]);
+    let ipld = Ipld::List(vec![Ipld::Integer(82.into()), Ipld::Bool(true)]);
     assert_serialized(tuple_struct, ipld);
 }
 
@@ -198,7 +198,7 @@ fn ipld_serializer_newtype_struct() {
     struct Wrapped(u8);
 
     let newtype_struct = Wrapped(3);
-    let ipld = Ipld::Integer(3);
+    let ipld = Ipld::Integer(3.into());
     assert_serialized(newtype_struct, ipld);
 }
 
@@ -218,7 +218,7 @@ fn ipld_serializer_newtype_struct_cid() {
 fn ipld_serializer_option() {
     let option_some: Option<u8> = Some(58u8);
     let option_none: Option<u8> = None;
-    let ipld_some = Ipld::Integer(58);
+    let ipld_some = Ipld::Integer(58.into());
     let ipld_none = Ipld::Null;
     assert_serialized(option_some, ipld_some);
     assert_serialized(option_none, ipld_none);
@@ -238,7 +238,7 @@ fn ipld_serializer_enum() {
     assert_serialized(enum_one, ipld_one);
 
     let enum_two = MyEnum::Two(4);
-    let ipld_two = Ipld::Map(BTreeMap::from([("Two".into(), Ipld::Integer(4))]));
+    let ipld_two = Ipld::Map(BTreeMap::from([("Two".into(), Ipld::Integer(4.into()))]));
     assert_serialized(enum_two, ipld_two);
 
     let enum_three = MyEnum::Three { value: true };

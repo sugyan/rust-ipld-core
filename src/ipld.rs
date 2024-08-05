@@ -10,6 +10,7 @@ use alloc::{
 use core::fmt;
 
 use cid::Cid;
+use num_bigint::BigInt;
 
 /// Error when accessing IPLD List or Map elements.
 #[derive(Clone, Debug)]
@@ -41,7 +42,7 @@ pub enum Ipld {
     /// Represents a boolean value.
     Bool(bool),
     /// Represents an integer.
-    Integer(i128),
+    Integer(BigInt),
     /// Represents a floating point value.
     Float(f64),
     /// Represents an UTF-8 string.
@@ -313,16 +314,16 @@ mod tests {
 
     #[test]
     fn test_ipld_integer_from() {
-        assert_eq!(Ipld::Integer(1), Ipld::from(1i8));
-        assert_eq!(Ipld::Integer(1), Ipld::from(1i16));
-        assert_eq!(Ipld::Integer(1), Ipld::from(1i32));
-        assert_eq!(Ipld::Integer(1), Ipld::from(1i64));
-        assert_eq!(Ipld::Integer(1), Ipld::from(1i128));
+        assert_eq!(Ipld::Integer(1.into()), Ipld::from(1i8));
+        assert_eq!(Ipld::Integer(1.into()), Ipld::from(1i16));
+        assert_eq!(Ipld::Integer(1.into()), Ipld::from(1i32));
+        assert_eq!(Ipld::Integer(1.into()), Ipld::from(1i64));
+        assert_eq!(Ipld::Integer(1.into()), Ipld::from(1i128));
 
         //assert_eq!(Ipld::Integer(1), 1u8.to_ipld().to_owned());
-        assert_eq!(Ipld::Integer(1), Ipld::from(1u16));
-        assert_eq!(Ipld::Integer(1), Ipld::from(1u32));
-        assert_eq!(Ipld::Integer(1), Ipld::from(1u64));
+        assert_eq!(Ipld::Integer(1.into()), Ipld::from(1u16));
+        assert_eq!(Ipld::Integer(1.into()), Ipld::from(1u32));
+        assert_eq!(Ipld::Integer(1.into()), Ipld::from(1u64));
     }
 
     #[test]
@@ -361,32 +362,40 @@ mod tests {
 
     #[test]
     fn test_take() {
-        let ipld = Ipld::List(vec![Ipld::Integer(0), Ipld::Integer(1), Ipld::Integer(2)]);
-        assert_eq!(ipld.clone().take(0).unwrap(), Some(Ipld::Integer(0)));
-        assert_eq!(ipld.clone().take(1).unwrap(), Some(Ipld::Integer(1)));
-        assert_eq!(ipld.take(2).unwrap(), Some(Ipld::Integer(2)));
+        let ipld = Ipld::List(vec![
+            Ipld::Integer(0.into()),
+            Ipld::Integer(1.into()),
+            Ipld::Integer(2.into()),
+        ]);
+        assert_eq!(ipld.clone().take(0).unwrap(), Some(Ipld::Integer(0.into())));
+        assert_eq!(ipld.clone().take(1).unwrap(), Some(Ipld::Integer(1.into())));
+        assert_eq!(ipld.take(2).unwrap(), Some(Ipld::Integer(2.into())));
 
         let mut map = BTreeMap::new();
-        map.insert("a".to_string(), Ipld::Integer(0));
-        map.insert("b".to_string(), Ipld::Integer(1));
-        map.insert("c".to_string(), Ipld::Integer(2));
+        map.insert("a".to_string(), Ipld::Integer(0.into()));
+        map.insert("b".to_string(), Ipld::Integer(1.into()));
+        map.insert("c".to_string(), Ipld::Integer(2.into()));
         let ipld = Ipld::Map(map);
-        assert_eq!(ipld.take("a").unwrap(), Some(Ipld::Integer(0)));
+        assert_eq!(ipld.take("a").unwrap(), Some(Ipld::Integer(0.into())));
     }
 
     #[test]
     fn test_get() {
-        let ipld = Ipld::List(vec![Ipld::Integer(0), Ipld::Integer(1), Ipld::Integer(2)]);
-        assert_eq!(ipld.get(0).unwrap(), Some(&Ipld::Integer(0)));
-        assert_eq!(ipld.get(1).unwrap(), Some(&Ipld::Integer(1)));
-        assert_eq!(ipld.get(2).unwrap(), Some(&Ipld::Integer(2)));
+        let ipld = Ipld::List(vec![
+            Ipld::Integer(0.into()),
+            Ipld::Integer(1.into()),
+            Ipld::Integer(2.into()),
+        ]);
+        assert_eq!(ipld.get(0).unwrap(), Some(&Ipld::Integer(0.into())));
+        assert_eq!(ipld.get(1).unwrap(), Some(&Ipld::Integer(1.into())));
+        assert_eq!(ipld.get(2).unwrap(), Some(&Ipld::Integer(2.into())));
 
         let mut map = BTreeMap::new();
-        map.insert("a".to_string(), Ipld::Integer(0));
-        map.insert("b".to_string(), Ipld::Integer(1));
-        map.insert("c".to_string(), Ipld::Integer(2));
+        map.insert("a".to_string(), Ipld::Integer(0.into()));
+        map.insert("b".to_string(), Ipld::Integer(1.into()));
+        map.insert("c".to_string(), Ipld::Integer(2.into()));
         let ipld = Ipld::Map(map);
-        assert_eq!(ipld.get("a").unwrap(), Some(&Ipld::Integer(0)));
+        assert_eq!(ipld.get("a").unwrap(), Some(&Ipld::Integer(0.into())));
     }
 
     // NaN floats are forbidden in the IPLD Data Model, but still make sure they are treated as

@@ -114,7 +114,7 @@ impl<'de> de::Deserialize<'de> for Ipld {
             where
                 E: de::Error,
             {
-                Ok(Ipld::Integer(v))
+                Ok(Ipld::Integer(v.into()))
             }
 
             #[inline]
@@ -266,7 +266,13 @@ impl<'de> de::Deserializer<'de> for Ipld {
         match self {
             Self::Null => visitor.visit_none(),
             Self::Bool(bool) => visitor.visit_bool(bool),
-            Self::Integer(i128) => visitor.visit_i128(i128),
+            Self::Integer(i) => {
+                if let Ok(value) = i.try_into() {
+                    visitor.visit_i64(value)
+                } else {
+                    Err(de::Error::custom("Integer value is too large"))
+                }
+            }
             Self::Float(f64) => visitor.visit_f64(f64),
             Self::String(string) => visitor.visit_str(&string),
             Self::Bytes(bytes) => visitor.visit_bytes(&bytes),

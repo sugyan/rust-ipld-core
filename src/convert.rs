@@ -119,6 +119,16 @@ macro_rules! derive_try_from_ipld {
     };
 }
 
+macro_rules! derive_into_ipld_integer {
+    ($ty:ty) => {
+        impl From<$ty> for Ipld {
+            fn from(t: $ty) -> Self {
+                Ipld::Integer(t.into())
+            }
+        }
+    };
+}
+
 macro_rules! derive_into_ipld_prim {
     ($enum:ident, $ty:ty, $fn:ident) => {
         impl From<$ty> for Ipld {
@@ -140,17 +150,17 @@ macro_rules! derive_into_ipld {
 }
 
 derive_into_ipld!(Bool, bool, clone);
-derive_into_ipld_prim!(Integer, i8, clone);
-derive_into_ipld_prim!(Integer, i16, clone);
-derive_into_ipld_prim!(Integer, i32, clone);
-derive_into_ipld_prim!(Integer, i64, clone);
-derive_into_ipld_prim!(Integer, i128, clone);
-derive_into_ipld_prim!(Integer, isize, clone);
-derive_into_ipld_prim!(Integer, u8, clone);
-derive_into_ipld_prim!(Integer, u16, clone);
-derive_into_ipld_prim!(Integer, u32, clone);
-derive_into_ipld_prim!(Integer, u64, clone);
-derive_into_ipld_prim!(Integer, usize, clone);
+derive_into_ipld_integer!(i8);
+derive_into_ipld_integer!(i16);
+derive_into_ipld_integer!(i32);
+derive_into_ipld_integer!(i64);
+derive_into_ipld_integer!(i128);
+derive_into_ipld_integer!(isize);
+derive_into_ipld_integer!(u8);
+derive_into_ipld_integer!(u16);
+derive_into_ipld_integer!(u32);
+derive_into_ipld_integer!(u64);
+derive_into_ipld_integer!(usize);
 derive_into_ipld_prim!(Float, f32, clone);
 derive_into_ipld_prim!(Float, f64, clone);
 derive_into_ipld!(String, String, into);
@@ -220,14 +230,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn try_into_wrong_type() {
-        let _boolean: bool = Ipld::Integer(u8::MAX as i128).try_into().unwrap();
-    }
-
-    #[test]
-    #[should_panic]
-    fn try_into_wrong_range() {
-        let int: u128 = Ipld::Integer(-1i128).try_into().unwrap();
-        assert_eq!(int, u128::MIN);
+        let _boolean: bool = Ipld::Integer(u8::MAX.into()).try_into().unwrap();
     }
 
     #[test]
@@ -241,40 +244,40 @@ mod tests {
 
     #[test]
     fn try_into_ints() {
-        let int: u8 = Ipld::Integer(u8::MAX as i128).try_into().unwrap();
+        let int: u8 = Ipld::Integer(u8::MAX.into()).try_into().unwrap();
         assert_eq!(int, u8::MAX);
 
-        let int: u16 = Ipld::Integer(u16::MAX as i128).try_into().unwrap();
+        let int: u16 = Ipld::Integer(u16::MAX.into()).try_into().unwrap();
         assert_eq!(int, u16::MAX);
 
-        let int: u32 = Ipld::Integer(u32::MAX as i128).try_into().unwrap();
+        let int: u32 = Ipld::Integer(u32::MAX.into()).try_into().unwrap();
         assert_eq!(int, u32::MAX);
 
-        let int: u64 = Ipld::Integer(u64::MAX as i128).try_into().unwrap();
+        let int: u64 = Ipld::Integer(u64::MAX.into()).try_into().unwrap();
         assert_eq!(int, u64::MAX);
 
-        let int: usize = Ipld::Integer(usize::MAX as i128).try_into().unwrap();
+        let int: usize = Ipld::Integer(usize::MAX.into()).try_into().unwrap();
         assert_eq!(int, usize::MAX);
 
-        let int: u128 = Ipld::Integer(i128::MAX).try_into().unwrap();
+        let int: u128 = Ipld::Integer(i128::MAX.into()).try_into().unwrap();
         assert_eq!(int, i128::MAX as u128);
 
-        let int: i8 = Ipld::Integer(i8::MIN as i128).try_into().unwrap();
+        let int: i8 = Ipld::Integer(i8::MIN.into()).try_into().unwrap();
         assert_eq!(int, i8::MIN);
 
-        let int: i16 = Ipld::Integer(i16::MIN as i128).try_into().unwrap();
+        let int: i16 = Ipld::Integer(i16::MIN.into()).try_into().unwrap();
         assert_eq!(int, i16::MIN);
 
-        let int: i32 = Ipld::Integer(i32::MIN as i128).try_into().unwrap();
+        let int: i32 = Ipld::Integer(i32::MIN.into()).try_into().unwrap();
         assert_eq!(int, i32::MIN);
 
-        let int: i64 = Ipld::Integer(i64::MIN as i128).try_into().unwrap();
+        let int: i64 = Ipld::Integer(i64::MIN.into()).try_into().unwrap();
         assert_eq!(int, i64::MIN);
 
-        let int: isize = Ipld::Integer(isize::MIN as i128).try_into().unwrap();
+        let int: isize = Ipld::Integer(isize::MIN.into()).try_into().unwrap();
         assert_eq!(int, isize::MIN);
 
-        let int: i128 = Ipld::Integer(i128::MIN).try_into().unwrap();
+        let int: i128 = Ipld::Integer(i128::MIN.into()).try_into().unwrap();
         assert_eq!(int, i128::MIN);
 
         let int: Option<i32> = Ipld::Null.try_into().unwrap();
@@ -315,7 +318,11 @@ mod tests {
 
     #[test]
     fn try_into_list() {
-        let ints = vec![Ipld::Integer(0), Ipld::Integer(1), Ipld::Integer(2)];
+        let ints = vec![
+            Ipld::Integer(0.into()),
+            Ipld::Integer(1.into()),
+            Ipld::Integer(2.into()),
+        ];
         let list: Vec<Ipld> = Ipld::List(ints.clone()).try_into().unwrap();
         assert_eq!(ints, list);
 
@@ -326,9 +333,9 @@ mod tests {
     #[test]
     fn try_into_map() {
         let mut numbs = BTreeMap::new();
-        numbs.insert("zero".into(), Ipld::Integer(0));
-        numbs.insert("one".into(), Ipld::Integer(1));
-        numbs.insert("two".into(), Ipld::Integer(2));
+        numbs.insert("zero".into(), Ipld::Integer(0.into()));
+        numbs.insert("one".into(), Ipld::Integer(1.into()));
+        numbs.insert("two".into(), Ipld::Integer(2.into()));
         let map: BTreeMap<String, Ipld> = Ipld::Map(numbs.clone()).try_into().unwrap();
         assert_eq!(numbs, map);
 
